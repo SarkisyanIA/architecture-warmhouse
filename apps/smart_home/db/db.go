@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math/rand"
 	"time"
 
 	"smarthome/models"
@@ -109,45 +108,37 @@ func (db *DB) GetSensorByID(ctx context.Context, id int) (models.Sensor, error) 
 
 // CreateSensor creates a new sensor in the database
 func (db *DB) CreateSensor(ctx context.Context, s models.SensorCreate) (models.Sensor, error) {
-    // Устанавливаем дефолтное значение, если не передано
-    value := s.Value
-    if s.Value == 0 { // или if s.Value == nil, если это указатель
-        // Генерируем случайное значение от 0 до 60
-        rand.Seed(time.Now().UnixNano())
-        value = float64(rand.Intn(61)) // 0-60 включительно
-    }
+	query := `
+		INSERT INTO sensors (name, type, location, unit, status, last_updated, created_at, value)
+		VALUES ($1, $2, $3, $4, 'inactive', $5, $5, $6)
+		RETURNING id, name, type, location, value, unit, status, last_updated, created_at
+	`
 
-    query := `
-        INSERT INTO sensors (name, type, location, unit, status, last_updated, created_at, value)
-        VALUES ($1, $2, $3, $4, 'inactive', $5, $5, $6)
-        RETURNING id, name, type, location, value, unit, status, last_updated, created_at
-    `
+	now := time.Now()
+	var sensor models.Sensor
+	err := db.Pool.QueryRow(ctx, query,
+		s.Name,
+		s.Type,
+		s.Location,
+		s.Unit,
+		now,
+		s.Value,
+	).Scan(
+		&sensor.ID,
+		&sensor.Name,
+		&sensor.Type,
+		&sensor.Location,
+		&sensor.Value,
+		&sensor.Unit,
+		&sensor.Status,
+		&sensor.LastUpdated,
+		&sensor.CreatedAt,
+	)
+	if err != nil {
+		return models.Sensor{}, fmt.Errorf("error creating sensor: %w", err)
+	}
 
-    now := time.Now()
-    var sensor models.Sensor
-    err := db.Pool.QueryRow(ctx, query,
-        s.Name,
-        s.Type,
-        s.Location,
-        s.Unit,
-        now,
-        value, // Используем вычисленное значение
-    ).Scan(
-        &sensor.ID,
-        &sensor.Name,
-        &sensor.Type,
-        &sensor.Location,
-        &sensor.Value,
-        &sensor.Unit,
-        &sensor.Status,
-        &sensor.LastUpdated,
-        &sensor.CreatedAt,
-    )
-    if err != nil {
-        return models.Sensor{}, fmt.Errorf("error creating sensor: %w", err)
-    }
-
-    return sensor, nil
+	return sensor, nil
 }
 
 // UpdateSensor updates an existing sensor
