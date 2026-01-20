@@ -1,0 +1,51 @@
+@startuml
+title SmartHome Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "User", "A user of the smarthome system")
+System(SmartHomeSystem, "SmartHome System", "SmartHome management System")
+
+Container_Boundary(SmartHomeSystem, "SmartHome System") {
+  Container(WebInterface, "Web Interface", "React", "Handles user interactions")
+  Container(APIGateway, "API Gateway", "Java, Spring", "A single point of entry to the application")
+  Container(UserAuth, "User Auth", "Java, Spring", "Allows users to authenticate themselves")
+  Container(TemperatureApplication, "Temperature Application", "Java, Spring", "Temperature monitoring and control application")
+  Container(LightApplication, "Light Application", "Java, Spring", "Light monitoring and control application")
+  Container(GateApplication, "Gate Application", "Java, Spring", "Gate monitoring and control application")
+  Container(ObservationApplication, "Observation Application", "Java, Spring", "Observation monitoring and control application")
+  Container(DeviceInstallationApplication, "Device Installation Application", "Java, Spring", "An application for calling a device installation worker")
+  Container(UserDatabase, "User Database", "PostgreSQL", "Stores users data")
+  Container(TemperatureDatabase, "Temperature Database", "PostgreSQL", "Stores temperatures data")
+  Container(LightDatabase, "Light Database", "PostgreSQL", "Stores lights data")
+  Container(GateDatabase, "Gate Database", "PostgreSQL", "Stores gate data")
+  Container(ObservationDatabase, "Observation Database", "PostgreSQL", "Stores observation data")
+  Container(DeviceInstallationDatabase, "Device Installation Database", "PostgreSQL", "Stores device installation data")
+}
+
+System_Ext(tempDevice, "Temperature Device", "Temperature control device")
+System_Ext(lightDevice, "Light Device", "Light control device")
+System_Ext(gateDevice, "Gate Device", "Gate control device")
+System_Ext(observationDevice, "Observation Device", "Observation control device")
+
+Rel(user, WebInterface, "Uses the system")
+Rel(WebInterface, APIGateway, "Processes smarthouse requests",HTTP/REST)
+Rel(APIGateway, DeviceInstallationApplication, "Processes device installation requests",HTTP/REST)
+Rel(APIGateway, UserAuth, "Processes user requests",HTTP/REST)
+Rel(APIGateway, TemperatureApplication, "Processes temperature requests",HTTP/REST)
+Rel(APIGateway, LightApplication, "Processes light requests",HTTP/REST)
+Rel(APIGateway, GateApplication, "Processes gate requests",HTTP/REST)
+Rel(APIGateway, ObservationApplication, "Processes observation requests",HTTP/REST)
+Rel(UserAuth,UserDatabase, "Reads/Writes user data",SQL/TCP)
+Rel(TemperatureApplication,TemperatureDatabase, "Reads/Writes temperature data",SQL/TCP)
+Rel(LightApplication,LightDatabase,"Reads/Writes light data",SQL/TCP)
+Rel(GateApplication,GateDatabase,"Reads/Writes gate data",SQL/TCP)
+Rel(ObservationApplication,ObservationDatabase,"Reads/Writes observation data",SQL/TCP)
+Rel(DeviceInstallationApplication,DeviceInstallationDatabase,"Reads/Writes device installation data",SQL/TCP)
+Rel(tempDevice,TemperatureApplication,"Send temp data",Kafka)
+Rel(lightDevice,LightApplication,"Send light data",Kafka)
+Rel(gateDevice,GateApplication,"Send gate data",Kafka)
+Rel(observationDevice,ObservationApplication,"Send observation data",Kafka)
+@enduml

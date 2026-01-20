@@ -1,0 +1,61 @@
+@startuml
+title SmartHome Temperature ER Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+class User {
+  +UUID id
+  +String name
+  +String password
+  +String email
+  +List<House> houses
+  +List<Device> devices
+}
+
+class House {
+  +UUID id
+  +String address
+  +String description
+  +List<Room> rooms
+}
+
+class Device {
+  +UUID id
+  +DeviceType deviceType
+  +String model
+  +String config
+  +List<Telemetry> telemetry
+}
+
+class DeviceType {
+  +UUID id
+  +String type
+}
+
+class Room {
+  +UUID id
+  +RoomType roomType
+}
+
+class RoomType {
+  +UUID id
+  +String type
+}
+
+class Telemetry {
+  +UUID id
+  +Date date
+  +String data
+  +Device device
+}
+
+User "1" -- "0..*" House : has
+User "1" -- "0..*" Device : has
+House "1" -- "0..*" Room : has
+Device "1" -- "0..*" Telemetry : has
+Room "1" -- "1" RoomType : has
+Device "1" -- "1" DeviceType : has
+
+@enduml

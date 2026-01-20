@@ -1,0 +1,22 @@
+@startuml
+title SmartHome Web Application Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(SmartHomeSystem, "SmartHome System") {
+  Container(LightApplication, "Light Application", "Java, Spring", "Light monitoring and control application")
+  Container(LightDatabase, "Light Database", "PostgreSQL", "Stores Lights data")
+}
+
+Container(LightApplication, "Light Application", "Java, Spring") {
+  Component(LightController, "LightController", "The technical layer is the controller")
+  Component(LightService, "LightService", "The technical layer is the service")
+  Component(LightRepository, "LightRepository", "The technical layer is the repository")
+}
+
+Rel(LightController,LightService,"Calls Light business logic")
+Rel(LightService,LightRepository,"Reads/Writes data")
+Rel(LightRepository,LightDatabase,"Reads/Writes Light data", TCP/SQL)
+@enduml

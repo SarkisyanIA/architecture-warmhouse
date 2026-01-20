@@ -1,0 +1,389 @@
+openapi: 3.0.3
+info:
+  title: Устройства и пользователи API
+  description: API для управления пользователями и устройствами (Gate и Temperature)
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+    description: Локальный сервер
+paths:
+  # Пользователи (User)
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Получить список пользователей
+      responses:
+        '200':
+          description: Успешный запрос
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: Ошибка сервера
+    post:
+      tags:
+        - Users
+      summary: Создать нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Неверный запрос
+        '500':
+          description: Ошибка сервера
+
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Получить пользователя по ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Пользователь не найден
+        '500':
+          description: Ошибка сервера
+    put:
+      tags:
+        - Users
+      summary: Обновить пользователя
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Пользователь обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Пользователь не найден
+        '400':
+          description: Неверный запрос
+        '500':
+          description: Ошибка сервера
+
+  # Ворота (Gate)
+  /gates:
+    get:
+      tags:
+        - Gates
+      summary: Получить список ворот
+      responses:
+        '200':
+          description: Успешный запрос
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Gate'
+        '500':
+          description: Ошибка сервера
+    post:
+      tags:
+        - Gates
+      summary: Создать новые ворота
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateCreate'
+      responses:
+        '201':
+          description: Ворота созданы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gate'
+        '400':
+          description: Неверный запрос
+        '500':
+          description: Ошибка сервера
+
+  /gates/{gateId}/telemetry:
+    get:
+      tags:
+        - Gates
+      summary: Получить телеметрию для ворот
+      parameters:
+        - name: gateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Успешный запрос
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Telemetry'
+        '404':
+          description: Ворота не найдены
+        '500':
+          description: Ошибка сервера
+
+  # Температурные датчики (Temperature)
+  /temperatures:
+    get:
+      tags:
+        - Temperatures
+      summary: Получить список температурных датчиков
+      responses:
+        '200':
+          description: Успешный запрос
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Temperature'
+        '500':
+          description: Ошибка сервера
+    post:
+      tags:
+        - Temperatures
+      summary: Создать новый температурный датчик
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemperatureCreate'
+      responses:
+        '201':
+          description: Датчик создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Temperature'
+        '400':
+          description: Неверный запрос
+        '500':
+          description: Ошибка сервера
+
+  /temperatures/{temperatureId}/telemetry:
+    get:
+      tags:
+        - Temperatures
+      summary: Получить телеметрию для температурного датчика
+      parameters:
+        - name: temperatureId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Успешный запрос
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Telemetry'
+        '404':
+          description: Датчик не найден
+        '500':
+          description: Ошибка сервера
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор пользователя
+        name:
+          type: string
+          description: Имя пользователя
+        email:
+          type: string
+          format: email
+          description: Email пользователя
+        devices:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/Gate'
+              - $ref: '#/components/schemas/Temperature'
+          description: Список устройств пользователя
+      required:
+        - id
+        - name
+        - email
+
+    UserCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Имя пользователя
+        password:
+          type: string
+          format: password
+          description: Пароль пользователя
+        email:
+          type: string
+          format: email
+          description: Email пользователя
+      required:
+        - name
+        - password
+        - email
+
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Имя пользователя
+        email:
+          type: string
+          format: email
+          description: Email пользователя
+        password:
+          type: string
+          format: password
+          description: Пароль пользователя
+
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор устройства
+        model:
+          type: string
+          description: Модель устройства
+        config:
+          type: string
+          description: Конфигурация устройства
+        telemetry:
+          type: array
+          items:
+            $ref: '#/components/schemas/Telemetry'
+          description: Список телеметрии устройства
+      required:
+        - id
+        - model
+
+    Gate:
+      allOf:
+        - $ref: '#/components/schemas/Device'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [gate]
+              description: Тип устройства - ворота
+
+    GateCreate:
+      type: object
+      properties:
+        model:
+          type: string
+          description: Модель ворот
+        config:
+          type: string
+          description: Конфигурация ворот
+      required:
+        - model
+
+    Temperature:
+      allOf:
+        - $ref: '#/components/schemas/Device'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [temperature]
+              description: Тип устройства - температурный датчик
+
+    TemperatureCreate:
+      type: object
+      properties:
+        model:
+          type: string
+          description: Модель температурного датчика
+        config:
+          type: string
+          description: Конфигурация датчика
+      required:
+        - model
+
+    Telemetry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор телеметрии
+        date:
+          type: string
+          format: date-time
+          description: Дата и время записи телеметрии
+        data:
+          type: string
+          description: Данные телеметрии
+        device:
+          type: object
+          description: Устройство, к которому относится телеметрия
+      required:
+        - id
+        - date
+        - data
+
+tags:
+  - name: Users
+    description: Операции с пользователями
+  - name: Gates
+    description: Операции с воротами
+  - name: Temperatures
+    description: Операции с температурными датчиками
