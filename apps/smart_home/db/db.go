@@ -109,8 +109,8 @@ func (db *DB) GetSensorByID(ctx context.Context, id int) (models.Sensor, error) 
 // CreateSensor creates a new sensor in the database
 func (db *DB) CreateSensor(ctx context.Context, s models.SensorCreate) (models.Sensor, error) {
 	query := `
-		INSERT INTO sensors (name, type, location, unit, status, last_updated, created_at, value)
-		VALUES ($1, $2, $3, $4, 'inactive', $5, $5, $6)
+		INSERT INTO sensors (name, type, location, unit, status, last_updated, created_at)
+		VALUES ($1, $2, $3, $4, 'inactive', $5, $5)
 		RETURNING id, name, type, location, value, unit, status, last_updated, created_at
 	`
 
@@ -122,7 +122,6 @@ func (db *DB) CreateSensor(ctx context.Context, s models.SensorCreate) (models.S
 		s.Location,
 		s.Unit,
 		now,
-		s.Value,
 	).Scan(
 		&sensor.ID,
 		&sensor.Name,

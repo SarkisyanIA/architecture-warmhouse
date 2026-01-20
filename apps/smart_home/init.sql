@@ -16,3 +16,21 @@ CREATE TABLE IF NOT EXISTS sensors (
 CREATE INDEX IF NOT EXISTS idx_sensors_type ON sensors(type);
 CREATE INDEX IF NOT EXISTS idx_sensors_location ON sensors(location);
 CREATE INDEX IF NOT EXISTS idx_sensors_status ON sensors(status);
+
+INSERT INTO sensors (name, type, location, value, unit, status) VALUES
+    ('Температура в гостиной', 'temperature', 'Гостиная', 22.5, '°C', 'active'),
+    ('Температура на кухне', 'temperature', 'Кухня', 21, '°C', 'active'),
+    ('Температура в спальне', 'temperature', 'Спальня', 23, '°C', 'active'),
+    ('Температура в гараже', 'temperature', 'Гараж', 10, '°C', 'active')
+ON CONFLICT DO NOTHING;
+
+SELECT 'Database initialized successfully!' as message;
+
+INSERT INTO sensors (name, type, location, value, unit, status) VALUES
+    ('Температура в гостиной', 'temperature', 'Гостиная', 22.5, '°C', 'active'),
+    ('Температура на кухне', 'temperature', 'Кухня', 21, '°C', 'active'),
+    ('Температура в спальне', 'temperature', 'Спальня', 23, '°C', 'active'),
+    ('Температура в гараже', 'temperature', 'Гараж', 10, '°C', 'active')
+ON CONFLICT DO NOTHING;
+
+SELECT 'Database initialized successfully!' as message;

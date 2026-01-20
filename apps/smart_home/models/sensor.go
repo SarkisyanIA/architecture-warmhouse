@@ -30,7 +30,6 @@ type SensorCreate struct {
 	Type     SensorType `json:"type" binding:"required"`
 	Location string     `json:"location" binding:"required"`
 	Unit     string     `json:"unit"`
-	Value    float64    `json:"value"`
 }
 
 // SensorUpdate represents the data that can be updated for a sensor
